@@ -6,8 +6,6 @@ public class Main {
 		int ServerPort = 69;
 		int HostPort = 68;
 		
-		System.out.println();
-		
 		new Server("Server", ServerPort).start();
 		new Host("Host", ServerPort, HostPort).start();
 		new Client("Client", HostPort).start();

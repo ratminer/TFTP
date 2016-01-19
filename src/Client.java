@@ -24,13 +24,13 @@ public class Client extends Thread{
 				sendData = sentence.getBytes();
 				DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, HostPort);
 				clientSocket.send(sendPacket);
-				System.out.println("SENDING TO HOST: " + sentence);
+				System.out.println(getName() + "| SENDING TO HOST: " + sentence);
 			
 				// receive packet from server
 				DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
 				clientSocket.receive(receivePacket);
 				String modifiedSentence = new String(receivePacket.getData());
-				System.out.println("FROM SERVER: " + modifiedSentence);
+				System.out.println(getName() + "| FROM SERVER: " + modifiedSentence);
 			}
 			//clientSocket.close();
 		} catch (Exception e) {

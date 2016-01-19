@@ -26,7 +26,7 @@ public class Server extends Thread{
 				DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
 				serverSocket.receive(receivePacket);
 				String sentence = new String(receivePacket.getData());
-				System.out.println("RECEIVED: " + sentence);
+				System.out.println(getName() + "| RECEIVED: " + sentence);
 			
 				// find IP address to return packet to, and port number
 				InetAddress IPAddress = receivePacket.getAddress();
