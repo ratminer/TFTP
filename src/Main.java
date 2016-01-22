@@ -5,8 +5,8 @@ public class Main {
 
 	public static void main(String[] args) throws Exception{
 		
-		int ServerPort = 9969;
-		int HostPort = 9968;
+		int ServerPort = 69;
+		int HostPort = 68;
 		
 		InetAddress IPAddress = InetAddress.getByName("localhost");
 		

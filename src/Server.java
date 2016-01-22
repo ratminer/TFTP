@@ -1,17 +1,19 @@
 import java.io.*;
 import java.net.*;
 
+
 public class Server extends TFTPThread{
 	
 
 	private static int ServerPort;
 	private DatagramSocket serverSocket;
-	
+	private boolean running;
 	
 	public Server(String name, int port) throws Exception {
 		super(name);
 		ServerPort = port;
 		serverSocket = new DatagramSocket(ServerPort);
+		running = true;
 	}
 	
 	private byte[] handlePacket(DatagramPacket packet) throws Exception{
@@ -30,6 +32,15 @@ public class Server extends TFTPThread{
 			byteWriter.write(4);
 			byteWriter.write(0);
 			byteWriter.write(0);
+		} else {
+			byteWriter.write(1);
+			byteWriter.write(1);
+			byteWriter.write(1);
+			byteWriter.write(1);
+			sendPacket(byteWriter.toByteArray(), packet.getAddress(), packet.getPort(), serverSocket);
+			serverSocket.close();
+			running = false;
+			throw new Exception("getRekt, invalid packet received");
 		}
 		
 		return byteWriter.toByteArray();
@@ -39,7 +50,7 @@ public class Server extends TFTPThread{
 		try {
 			/* Initialize variables */
 			// create server socket at port 69
-			while(true) {
+			while(running) {
 				
 				byte[] receiveData = new byte[512];
 				byte[] sendData = new byte[512];
@@ -47,13 +58,12 @@ public class Server extends TFTPThread{
 				// check port if there is a packet
 				DatagramPacket receivePacket = receivePacket(receiveData, serverSocket);
 
-				sendData = handlePacket(receivePacket);
-				
-				InetAddress IPAddress = receivePacket.getAddress();
 				int port = receivePacket.getPort();
+				InetAddress hostIPAddress = receivePacket.getAddress();
 				
+				sendData = handlePacket(receivePacket);
 				DatagramSocket sendSocket = new DatagramSocket();
-				sendPacket(sendData, IPAddress, port, sendSocket);
+				sendPacket(sendData, hostIPAddress, port, sendSocket);
 				sendSocket.close();
 			}
 		} catch (Exception e) {

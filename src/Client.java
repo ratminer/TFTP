@@ -19,7 +19,7 @@ public class Client extends TFTPThread{
 		IPAddress = IP;
 		HostPort = port;
 	}
-	
+
 	public void run() {
 		try {
 			for(int i = 0; i < 5; i++){
@@ -33,7 +33,16 @@ public class Client extends TFTPThread{
 				sendPacket(outputMessage,  IPAddress, HostPort, clientSocket);
 				receivePacket(receiveData, clientSocket);
 			}
+			ByteArrayOutputStream byteWriter= new ByteArrayOutputStream();
+			byteWriter.write(1);
+			byteWriter.write(1);
+			byteWriter.write(1);
+			byteWriter.write(1);
+			sendPacket(byteWriter.toByteArray(), IPAddress, HostPort, clientSocket);
+			receivePacket(new byte[512], clientSocket);
 			clientSocket.close();
+			
+			
 			
 		} catch (Exception e) {
 			e.printStackTrace();

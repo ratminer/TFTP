@@ -1,6 +1,6 @@
 import java.io.*;
 import java.net.*;
-
+import java.util.*;
 
 public class TFTPThread extends Thread{
 	
@@ -21,50 +21,40 @@ public class TFTPThread extends Thread{
 		return byteWriter.toByteArray();
 	}
 	
-	protected byte[] truncate(byte[] message) {
-		int count = 0;
-		int i = 0;
+	protected byte[] trim(byte[] message) {
 		
-		while (count < 3) {
-			if(message[i] == 0){
-				count ++;
-			}
-			i++;
+		int i = message.length - 1;
+		while(i >= 0 && message[i] == 0){
+			i--;
 		}
 		
-		if(count == 0) return message;
-		else{
-			byte[] truncatedMessage = new byte[i + 1];
-			int j = 0;
-			for(byte b : truncatedMessage){
-				truncatedMessage[j] = message[j];
-				j++;
-			}
-			return truncatedMessage;
-		}
+		return Arrays.copyOf(message, i + 1);
 	}
 	
 	public void sendPacket(byte[] message, InetAddress IPAddress, int port, DatagramSocket socket) throws Exception{
 		DatagramPacket sendPacket = new DatagramPacket(message, message.length, IPAddress, port);
-		writeData(message);
+		writeData("SENDING", message, socket);
 		socket.send(sendPacket);
 	}
 	
 	public DatagramPacket receivePacket(byte[] message, DatagramSocket socket) throws Exception {
 		DatagramPacket receivePacket = new DatagramPacket(message, message.length);
 		socket.receive(receivePacket);
-		writeData(receivePacket.getData());
+		writeData("RECEIVING", trim(receivePacket.getData()), socket);
 		return receivePacket;
 	}
 	
-	protected void writeData(byte[] message){
+	protected void writeData(String direction, byte[] message, DatagramSocket socket){
 		StringBuilder sb = new StringBuilder();
 		String sentence = new String(message);
-		sb.append(getName() + "	|" + sentence + " ");
-		for(byte b : sentence.getBytes()){
+		
+		sb.append(getName() + " " + direction+"\n");
+		sb.append("String: " + sentence + "\n");
+		sb.append("Bytes: ");
+		for(byte b : trim(message)){
 			sb.append(b);
 			sb.append(" ");
 		}
-		System.out.println(sb.toString());
+		System.out.println(sb.toString() + "\n");
 	}
 }
