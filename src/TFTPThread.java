@@ -24,7 +24,7 @@ public class TFTPThread extends Thread{
 	protected byte[] trim(byte[] message) {
 		
 		int i = message.length - 1;
-		while(i >= 0 && message[i] == 0){
+		while(i >= 4 && message[i] == 0){
 			i--;
 		}
 		
