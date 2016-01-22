@@ -2,60 +2,48 @@ import java.io.*;
 import java.net.*;
 
 
-public class Host extends Thread{
+public class Host extends TFTPThread{
 	
 	private static int ServerPort;
 	private static int HostPort;
+	private DatagramSocket receiveSocket;
+	private InetAddress clientIPAddress;
+	private InetAddress serverIPAddress;
 	
-	public Host(String name, int serverPort, int hostPort) {
+	public Host(String name, int serverPort, int hostPort, InetAddress clientIP, InetAddress serverIP) throws Exception {
 		super(name);
 		ServerPort = serverPort;
 		HostPort = hostPort;
+		receiveSocket = new DatagramSocket(HostPort);
+		clientIPAddress = clientIP;
+		serverIPAddress = serverIP;
 	}
 	
 	public void run(){
 		
 		try {
-			DatagramSocket receiveSocket = new DatagramSocket(HostPort);
-			DatagramSocket hostSocket = new DatagramSocket();
-		
-				InetAddress clientIPAddress = InetAddress.getByName("localhost");
-			InetAddress serverIPAddress = InetAddress.getByName("localhost");
-		
 			while(true) {
 				byte[] sendClientData = new byte[512];
 				byte[] sendServerData = new byte[512];
 				byte[] receiveClientData = new byte[512];
 				byte[] receiveServerData = new byte[512];
 				
-				// wait to receive a request
-				DatagramPacket receiveClientPacket = new DatagramPacket(receiveClientData, receiveClientData.length);
-				receiveSocket.receive(receiveClientPacket);
-				// print info
-				String sentence = new String(receiveClientPacket.getData());
-				System.out.println(getName() + "  | RECEIVED FROM CLIENT: " + sentence);
-			
+				DatagramPacket receiveClientPacket = receivePacket(receiveClientData, receiveSocket);
+				receiveClientPacket.getLength();
 				// find port used by client
 				int clientPort = receiveClientPacket.getPort();
-				// form packet and send to server
-				sendServerData = receiveClientData;
-				DatagramPacket sendServerPacket = new DatagramPacket(sendServerData, sendServerData.length, serverIPAddress, ServerPort);
-				hostSocket.send(sendServerPacket);
-				String sendServerSentence = new String(sendServerPacket.getData());
-				System.out.println(getName() + "  | SENDING TO SERVER: " + sendServerSentence);
-			
-				// wait for server response
-				DatagramPacket receiveServerPacket = new DatagramPacket(receiveServerData, receiveServerData.length);
-				hostSocket.receive(receiveServerPacket);
-				// print response
-				String modifiedSentence = new String(receiveServerPacket.getData());
-				System.out.println(getName() + "  | RECEIVED FROM SERVER: " + modifiedSentence);
-			
-				sendClientData = receiveServerData;
-				DatagramPacket sendClientPacket = new DatagramPacket(sendClientData, sendClientData.length, clientIPAddress, clientPort);
-				hostSocket.send(sendClientPacket);
-				String sendSentence = new String(sendClientPacket.getData());
-				System.out.println(getName() + "  | SENDING TO CLIENT: " + sendSentence);
+				
+				DatagramSocket hostSocket = new DatagramSocket();
+				
+				sendServerData = receiveClientPacket.getData();
+				sendPacket(sendServerData, serverIPAddress, ServerPort, hostSocket);
+								
+				DatagramPacket receiveServerPacket = receivePacket(receiveServerData, hostSocket);
+				
+				sendClientData = receiveServerPacket.getData();
+				sendPacket(sendClientData, clientIPAddress, clientPort, hostSocket);
+				
+				hostSocket.close();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

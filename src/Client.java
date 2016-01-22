@@ -1,38 +1,40 @@
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
 
-public class Client extends Thread{
+public class Client extends TFTPThread{
 
+	private static final int READ = 1;
+	private static final int WRITE = 2;
+	
 	private static int HostPort;
-
-	public Client(String name, int port){
+	private String sentence;
+	private DatagramSocket clientSocket;
+	private InetAddress IPAddress;
+	
+	public Client(String name, int port, InetAddress IP) throws Exception{
 		super(name);
+		// BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+		clientSocket = new DatagramSocket();
+		IPAddress = IP;
 		HostPort = port;
 	}
 	
 	public void run() {
 		try {
-			BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-			DatagramSocket clientSocket = new DatagramSocket();
-			InetAddress IPAddress = InetAddress.getByName("localhost");
-		
-			while(true){
-				byte[] sendData = new byte[512];;
-				byte[] receiveData = new byte[512];;
-				// send packet to server
-				String sentence = in.readLine();
-				sendData = sentence.getBytes();
-				DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, HostPort);
-				clientSocket.send(sendPacket);
-				System.out.println(getName() + "| SENDING TO HOST: " + sentence);
-			
-				// receive packet from server
-				DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
-				clientSocket.receive(receivePacket);
-				String modifiedSentence = new String(receivePacket.getData());
-				System.out.println(getName() + "| FROM SERVER: " + modifiedSentence);
+			for(int i = 0; i < 5; i++){
+				
+				byte[] inputMessage = createMessage(READ, "input" + i + ".txt", "netascii");
+				byte[] outputMessage = createMessage(WRITE, "output" + i + ".txt", "netascii");
+				byte[] receiveData = new byte[512];
+				
+				sendPacket(inputMessage, IPAddress, HostPort, clientSocket);
+				receivePacket(receiveData, clientSocket);
+				sendPacket(outputMessage,  IPAddress, HostPort, clientSocket);
+				receivePacket(receiveData, clientSocket);
 			}
-			//clientSocket.close();
+			clientSocket.close();
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
