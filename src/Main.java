@@ -9,9 +9,5 @@ public class Main {
 		int HostPort = 9968;
 		
 		InetAddress IPAddress = InetAddress.getByName("localhost");
-		
-		new Server("Server", ServerPort).start();
-		new Host("Host", ServerPort, HostPort, IPAddress, IPAddress).start();
-		new Client("Client", HostPort, IPAddress).start();
 	}
 }
