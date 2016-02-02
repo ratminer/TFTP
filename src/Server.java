@@ -17,7 +17,7 @@ public class Server {
 		serverListenerThread.start();
 		startMenu();
 	}
-
+	
 	private void startMenu() {
 		System.out.println("Type exit to close the server");
 		while (running) {

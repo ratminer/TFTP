@@ -10,7 +10,7 @@ public class Client {
 	private InetAddress destinationIPAddress;
 
 	private TFTPThread clientThread;
-	
+
 	private Scanner scanner;
 
 	public Client() {
@@ -42,7 +42,6 @@ public class Client {
 				System.out.println("invalid command");
 				continue;
 			}
-
 			System.out.println("\nEnter one of the following commands followed by"
 							+ "\nthe name of the file you wish to read/write:");
 			System.out.println("(write <filename>) - Write a file");
@@ -53,20 +52,24 @@ public class Client {
 			commands = scanner.next().split(" ");
 
 			if (commands[0].equals("write")) {
-				Message writeMessage = new WriteRequestMessage(commands[1], Message.MODE.NETASCII);
-				clientThread = new ClientThread("writeThread", writeMessage, destinationPort, destinationIPAddress);
+				Message writeMessage = new WriteRequestMessage(commands[1],
+						Message.MODE.NETASCII);
+				clientThread = new ClientThread("writeThread", writeMessage,
+						destinationPort, destinationIPAddress);
 				clientThread.start();
-				
+
 			} else if (commands[0].equals("read")) {
-				Message readMessage = new ReadRequestMessage(commands[1], Message.MODE.NETASCII);
-				clientThread = new ClientThread("readThread", readMessage, destinationPort, destinationIPAddress);
+				Message readMessage = new ReadRequestMessage(commands[1],
+						Message.MODE.NETASCII);
+				clientThread = new ClientThread("readThread", readMessage,
+						destinationPort, destinationIPAddress);
 				clientThread.start();
-				
+
 			} else if (commands[0].equals("exit")) {
 				exit();
 			}
-
 		}
+
 	}
 
 	private void exit() {

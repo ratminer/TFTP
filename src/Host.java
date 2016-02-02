@@ -9,6 +9,7 @@ public class Host extends TFTPThread{
 	private DatagramSocket receiveSocket;
 	private InetAddress clientIPAddress;
 	private InetAddress serverIPAddress;
+	private boolean running;
 	
 	public Host(String name, int serverPort, int hostPort, InetAddress clientIP, InetAddress serverIP) throws Exception {
 		super(name);
@@ -17,12 +18,13 @@ public class Host extends TFTPThread{
 		receiveSocket = new DatagramSocket(HostPort);
 		clientIPAddress = clientIP;
 		serverIPAddress = serverIP;
+		running = true;
 	}
 	
 	public void run(){
 		
 		try {
-			while(true) {
+			while(running) {
 				byte[] sendClientData = new byte[512];
 				byte[] sendServerData = new byte[512];
 				byte[] receiveClientData = new byte[512];
@@ -39,12 +41,15 @@ public class Host extends TFTPThread{
 				sendPacket(sendServerData, serverIPAddress, ServerPort, hostSocket);
 								
 				DatagramPacket receiveServerPacket = receivePacket(receiveServerData, hostSocket);
-				
+				if(receiveServerPacket.getData()[0] == 1){
+					running = false;
+				}
 				sendClientData = receiveServerPacket.getData();
 				sendPacket(sendClientData, clientIPAddress, clientPort, hostSocket);
 				
 				hostSocket.close();
 			}
+			receiveSocket.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

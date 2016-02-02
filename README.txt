@@ -1,0 +1,1 @@
+run the Main class to execute the Client, Host and Server threads
